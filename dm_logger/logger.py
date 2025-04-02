@@ -39,6 +39,10 @@ class DMLogger:
         write_config: WriteConfig = None,
         formatter_config: FormatterConfig = None,
     ):
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+        self._initialized = True
+
         self._name = name
         self._logger = logging.getLogger(name)
         level = logging.getLevelName(level.upper())
