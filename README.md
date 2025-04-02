@@ -59,6 +59,23 @@ Default settings:
 - Logging level set to DEBUG
 - Shows datetime, level, and logger name
 
+### Logging Level Configuration
+
+You can set the logging level either globally for all loggers or individually per logger instance:
+
+```python
+from dm_logger import DMLogger
+
+# Set global logging level for all logger instances
+DMLogger.logging_level = "INFO"  # Default is "DEBUG"
+
+# Create logger with global level
+logger1 = DMLogger("app1")  # Will use global level (INFO)
+
+# Override level for specific logger
+logger2 = DMLogger("app2", level="DEBUG")  # This logger will use DEBUG level
+```
+
 ### Formatting Configuration (optional)
 
 FormatterConfig controls which components to show in logs. You can set it either globally for all loggers or individually per logger instance:

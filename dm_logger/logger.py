@@ -21,6 +21,7 @@ class WriteConfig:
 
 class DMLogger:
     LOGS_DIR_PATH: str = ".logs"
+    logging_level: str = "DEBUG"
     formatter_config: FormatterConfig = FormatterConfig()
     _loggers: dict = {}
     _file_handlers: dict = {}
@@ -33,7 +34,7 @@ class DMLogger:
     def __init__(
         self,
         name: str = "Main",
-        level: str = "DEBUG",
+        level: str = None,
         *,
         std_logs: bool = True,
         file_logs: bool = False,
@@ -46,6 +47,8 @@ class DMLogger:
 
         self._name = name
         self._logger = logging.getLogger(name)
+
+        level = level or self.logging_level
         level = logging.getLevelName(level.upper())
         self._logger.setLevel(level)
 
