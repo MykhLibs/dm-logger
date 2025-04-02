@@ -68,10 +68,13 @@ class DMLogger:
 
     @staticmethod
     def _log(level_func: callable, message: any, **kwargs) -> None:
+        if not logging.getLogger().handlers and not level_func.__self__.handlers:
+            return
+
         extra = {}
 
         if isinstance(message, Exception):
-            # Якщо передали виняток, знайдемо останній фрейм з його стеку
+            # If an exception was thrown, we find the last frame from its stack
             tb = message.__traceback__
             while tb.tb_next:
                 tb = tb.tb_next

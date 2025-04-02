@@ -52,6 +52,8 @@ class CustomFormatter:
 
         def format(self, record):
             original_format = str(self._style._fmt)
+            original_msg = record.msg
+
             if record.levelno >= logging.ERROR:
                 # Check if we have error location info
                 if hasattr(record, "error_module"):
@@ -64,7 +66,7 @@ class CustomFormatter:
                             error_location + " " +
                             self._style._fmt[message_idx:]
                         )
-                        # Якщо це Exception, додамо тип помилки
+                        # If this Exception, add error type
                         if hasattr(record, "error_type"):
                             msg_parts = record.msg.split(" ")
                             record.msg = f"{msg_parts[0]} {record.error_type}: {' '.join(msg_parts[1:])}"
@@ -77,6 +79,8 @@ class CustomFormatter:
                             self._location_template + " " +
                             self._style._fmt[message_idx:]
                         )
+
             result = super().format(record)
             self._style._fmt = original_format
+            record.msg = original_msg
             return result
