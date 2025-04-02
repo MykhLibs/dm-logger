@@ -76,7 +76,7 @@ logger1 = DMLogger("app1")  # Will use global level (INFO)
 logger2 = DMLogger("app2", level="DEBUG")  # This logger will use DEBUG level
 ```
 
-### Formatting Configuration (optional)
+### Formatting Configuration
 
 FormatterConfig controls which components to show in logs. You can set it either globally for all loggers or individually per logger instance:
 
@@ -124,7 +124,7 @@ logger2 = DMLogger(
 # Example output from logger2: "01-01-2025 11:22:33.555 [INFO] [app2] Message"
 ```
 
-### File Logging Configuration (optional)
+### File Logging Configuration
 
 To enable file logging, set file_logs=True. WriteConfig controls file logger behavior:
 
@@ -200,7 +200,7 @@ Default format:
 ```
 01-01-2025 11:22:33.555 [INFO] [my_app] -- message
 01-01-2025 11:22:33.555 [ERROR] (main.process:45) -- error message
-01-01-2025 11:22:33.555 [ERROR] (utils.calc:10) ZeroDivisionError: division by zero
+01-01-2025 11:22:33.555 [ERROR] (utils.calc:10) -- ZeroDivisionError: division by zero
 ```
 
 Log components (in order of appearance):
