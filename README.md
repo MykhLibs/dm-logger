@@ -61,7 +61,7 @@ Default settings:
 
 ### Formatting Configuration (optional)
 
-FormatterConfig controls which components to show in logs:
+FormatterConfig controls which components to show in logs. You can set it either globally for all loggers or individually per logger instance:
 
 ```python
 from dm_logger import DMLogger, FormatterConfig
@@ -79,6 +79,32 @@ logger = DMLogger(
     "my_app",
     formatter_config=formatter_config  # If not specified, default config is used
 )
+```
+
+You can also set the formatter config globally for all loggers:
+
+```python
+from dm_logger import DMLogger, FormatterConfig
+
+# Global formatter config for all logger instances
+DMLogger.formatter_config = FormatterConfig(
+    show_datetime=True,
+    show_level=True,
+    show_name=False,  # Disable logger name globally
+    show_location=False
+)
+
+# Create logger with global config
+logger1 = DMLogger("app1")  # Will use global config (no logger names shown)
+
+# Override config for specific logger
+logger2 = DMLogger(
+    "app2",
+    formatter_config=FormatterConfig(show_name=True)  # This logger will show its name
+)
+
+# Example output from logger1: "01-01-2025 11:22:33.555 [INFO] Message"
+# Example output from logger2: "01-01-2025 11:22:33.555 [INFO] [app2] Message"
 ```
 
 ### File Logging Configuration (optional)
@@ -106,6 +132,8 @@ logger = DMLogger(
 Log files are stored in the `.logs` directory in the current working directory. To change directory for all log files:
 
 ```python
+from dm_logger import DMLogger
+
 # Important: set before creating any loggers
 DMLogger.LOGS_DIR_PATH = "path/to/logs"  # New directory for all logs
 
@@ -118,6 +146,8 @@ logger = DMLogger("my_app")
 You can create multiple loggers with different configurations:
 
 ```python
+from dm_logger import DMLogger, FormatterConfig, WriteConfig
+
 # Console only
 console_logger = DMLogger(
     "console",

@@ -1,2 +1,2 @@
 from .logger import DMLogger, WriteConfig
-from .formatters import FormatterConfig, CustomFormatter
+from .formatter import FormatterConfig, CustomFormatter

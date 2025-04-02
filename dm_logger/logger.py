@@ -7,7 +7,7 @@ from typing import Literal
 from dataclasses import dataclass
 from logging.handlers import RotatingFileHandler
 
-from .formatters import CustomFormatter, FormatterConfig
+from .formatter import CustomFormatter, FormatterConfig
 from .filters import DebugInfoFilter, WarningErrorCriticalFilter
 
 
@@ -21,6 +21,7 @@ class WriteConfig:
 
 class DMLogger:
     LOGS_DIR_PATH: str = ".logs"
+    formatter_config: FormatterConfig = FormatterConfig()
     _loggers: dict = {}
     _file_handlers: dict = {}
 
@@ -48,6 +49,7 @@ class DMLogger:
         level = logging.getLevelName(level.upper())
         self._logger.setLevel(level)
 
+        formatter_config = formatter_config or self.formatter_config
         formatter = CustomFormatter(formatter_config).formatter
         if std_logs:
             self._set_std_handlers(formatter)
