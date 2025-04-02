@@ -5,102 +5,164 @@
 * [PyPI](https://pypi.org/project/dm-logger/)
 * [GitHub](https://github.com/MykhLibs/dm-logger)
 
-## Parameters
+## Features
 
-### _Options for creating individual loggers_
+- Flexible log formatting with customizable components
+- Automatic error location display for ERROR and CRITICAL levels
+- Log file rotation based on size
+- Separate streams for DEBUG/INFO and WARNING/ERROR/CRITICAL messages
+- Support for additional parameters in log messages
+- Exception logging with automatic error location detection
 
-| Parameter    | Type   | Default Value | Description                                 |
-|--------------|--------|---------------|---------------------------------------------|
-| `name`       | `str`  | (required)    | The name associated with the class instance |
-| `level`      | `str`  | `"DEBUG"`     | The logging level (e.g., "DEBUG", "INFO")   |
-| `write_logs` | `bool` | `True`        | Whether to write logs to a file             |
-| `print_logs` | `bool` | `True`        | Whether to print logs to the console        |
-| `file_name`  | `str`  | `None`        | The name of the log file                    |
+## Installation
 
-### _Common class parameters for all loggers_
-
-| Parameter             | Type             | Default Value  | Description                                          |
-|-----------------------|------------------|----------------|------------------------------------------------------|
-| `logs_dir_path`       | `str`            | `"logs"`       | Path to the directory where the logs will be stored  |
-| `file_name`           | `str`            | `"main.log"`   | The name of the log file                             |
-| `write_mode`          | `"a" \| "w"`     | `"w"`          | File write mode ('a' for append, 'w' for overwrite)  |
-| `max_MB`              | `int`            | `5`            | Maximum size of the log file in MB                   |
-| `max_count`           | `int`            | `10`           | Maximum number of log files                          |
-| `show_name_label`     | `bool`           | `True`         | Whether to display the name label in log entries     |
-| `show_location_label` | `bool \| "auto"` | `"auto"`       | Whether to display the location label in log entries |
-| `format_string`       | `str`            | `None`         | The format string of the log                         |
+```bash
+pip install dm-logger
+```
 
 ## Usage
 
-### Setup class config
+### Basic Usage
 
-_This config usage for all loggers_
-
-```python
-from dm_logger import DMLogger
-
-DMLogger.config.show_name_label = False
-DMLogger.config.max_count = 5
-```
-
-### Record
+For simple usage, just create a logger with a name:
 
 ```python
 from dm_logger import DMLogger
 
-logger = DMLogger("main")
+# Create logger with default settings
+logger = DMLogger()  # default name "Main"
+# or
+logger = DMLogger("my_app")  # with custom name
 
-logger.info("test message", tag="test tag")
-logger.debug("new message", id=123312)
-logger.info("only mess")
-logger.critical(env="production")
-logger.warning({"key": "value"})
-logger.error(["item1", "item2", 3])
-logger.info()
+# Logging different levels
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
+
+# Logging with additional parameters
+logger.info("Processing", task_id=123, status="running")
+# Output: 01-01-2025 11:22:33.555 [INFO] [Main] {task_id: 123, status: 'running'} -- Processing
+
+# Logging exceptions
+try:
+    result = 1 / 0
+except Exception as e:
+    logger.error(e)  # Will automatically show error location
+    # Output: 01-01-2025 11:22:33.555 [ERROR] [Main] (test.py:10) ZeroDivisionError: division by zero
 ```
 
-Output
+Default settings:
+- Console output enabled (std_logs=True)
+- File logging disabled (file_logs=False)
+- Logging level set to DEBUG
+- Shows datetime, level, and logger name
 
-```textmate
-19-11-2023 00:49:03.406 [INFO] {tag: 'test tag'} -- test message
-19-11-2023 00:49:03.406 [DEBUG] {id: 123312} -- new message
-19-11-2023 00:49:03.407 [INFO] -- only mess
-19-11-2023 00:49:03.407 [CRITICAL] (test.<module>:8) {env: 'production'}
-19-11-2023 00:49:03.408 [WARNING] -- {'key': 'value'}
-19-11-2023 00:49:03.408 [ERROR] (test.<module>:10) -- ['item1', 'item2', 3]
-19-11-2023 00:49:03.409 [INFO]
-```
+### Formatting Configuration (optional)
 
-### Several loggers
-
-_All loggers will write to one file_
+FormatterConfig controls which components to show in logs:
 
 ```python
-from dm_logger import DMLogger
+from dm_logger import DMLogger, FormatterConfig
 
-logger = DMLogger("main", level="INFO")
-logger2 = DMLogger("only_file", print_logs=False)
+formatter_config = FormatterConfig(
+    # Default values:
+    show_datetime=True,    # Show datetime (DD-MM-YYYY HH:MM:SS.mmm)
+    show_level=True,       # Show level [DEBUG], [INFO], etc.
+    show_name=True,        # Show logger name [my_app]
+    show_location=False    # Show call location (module.function:line)
+                           # Always shown for ERROR/CRITICAL!
+)
 
-logger.info("Start app")
-logger2.debug(process_id=123123)
-logger.error("App crashed!")
+logger = DMLogger(
+    "my_app",
+    formatter_config=formatter_config  # If not specified, default config is used
+)
 ```
 
-Output
+### File Logging Configuration (optional)
 
-```textmate
-19-11-2023 00:56:36.879 [INFO] [main] -- Start app
-19-11-2023 00:56:36.880 [ERROR] [main] (test.<module>:10) -- App crashed!
+To enable file logging, set file_logs=True. WriteConfig controls file logger behavior:
+
+```python
+from dm_logger import DMLogger, WriteConfig
+
+write_config = WriteConfig(
+    # Default values:
+    file_name="main.log",  # Log file name
+    write_mode="w",        # "w" - new file at startup, "a" - append
+    max_MB=5,              # Maximum file size
+    max_count=10           # Number of files for rotation
+)
+
+logger = DMLogger(
+    "my_app",
+    file_logs=True,            # Enable file logging
+    write_config=write_config  # If not specified, default config is used
+)
 ```
 
-Log file
+Log files are stored in the `.logs` directory in the current working directory. To change directory for all log files:
 
-```textmate
-19-11-2023 00:56:36.879 [INFO] [main] -- Start app
-19-11-2023 00:56:36.880 [DEBUG] [only_file] {process_id: 123123}
-19-11-2023 00:56:36.880 [ERROR] [main] (test.<module>:10) -- App crashed!
+```python
+# Important: set before creating any loggers
+DMLogger.LOGS_DIR_PATH = "path/to/logs"  # New directory for all logs
+
+# Now you can create loggers
+logger = DMLogger("my_app")
 ```
 
-## Requirements
+### Multiple Loggers
 
-Python 3.8 or higher.
+You can create multiple loggers with different configurations:
+
+```python
+# Console only
+console_logger = DMLogger(
+    "console",
+    level="INFO",       # Different log level
+    std_logs=True,      # To console (default)
+    file_logs=False     # No file (default)
+)
+
+# File only
+file_logger = DMLogger(
+    "file",
+    std_logs=False,     # No console
+    file_logs=True,     # With file
+    write_config=WriteConfig(
+        file_name="background.log",
+        write_mode="a"  # Append to file
+    )
+)
+
+# With custom formatting
+debug_logger = DMLogger(
+    "debug",
+    formatter_config=FormatterConfig(
+        show_datetime=False,  # No datetime
+        show_location=True    # Always show call location
+    )
+)
+```
+
+## Log Format
+
+Default format:
+```
+01-01-2025 11:22:33.555 [INFO] [my_app] -- message
+01-01-2025 11:22:33.555 [ERROR] (main.process:45) -- error message
+01-01-2025 11:22:33.555 [ERROR] (utils.calc:10) ZeroDivisionError: division by zero
+```
+
+Log components (in order of appearance):
+- Datetime: `DD-MM-YYYY HH:MM:SS.mmm`
+- Level: `[DEBUG]`, `[INFO]`, `[WARNING]`, `[ERROR]`, `[CRITICAL]`
+- Logger name: `[my_app]`
+- Call location: `(module.function:line)`
+  - Always shown for ERROR/CRITICAL
+  - For other levels only if show_location=True
+- Additional parameters: `{param: value}`
+- Message: `-- message`
+   - For exceptions `-- ExceptionType: error message`
