@@ -68,8 +68,8 @@ class CustomFormatter:
                         )
                         # If this Exception, add error type
                         if hasattr(record, "error_type"):
-                            msg_parts = record.msg.split(" ")
-                            record.msg = f"{msg_parts[0]} {record.error_type}: {' '.join(msg_parts[1:])}"
+                            replace_key = "$kwargs$-- " if "$kwargs$-- " in record.msg else "-- "
+                            record.msg = record.msg.replace(replace_key, f"{replace_key}{record.error_type}: ")
                 # If no error location, add default location
                 elif self._location_template not in self._style._fmt:
                     message_idx = self._style._fmt.find("%(message)s")
@@ -79,6 +79,7 @@ class CustomFormatter:
                             self._location_template + " " +
                             self._style._fmt[message_idx:]
                         )
+            record.msg = record.msg.replace("$kwargs$", " ")
 
             result = super().format(record)
             self._style._fmt = original_format

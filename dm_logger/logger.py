@@ -97,8 +97,8 @@ class DMLogger:
 
         message = "-- " + str(message) if message else ""
         if kwargs:
-            dict_string = re.sub(r"'(\w+)':", r"\1:", str(kwargs))
-            message = f"{dict_string} {message}"
+            kwargs = re.sub(r"'(\w+)':", r"\1:", str(kwargs))
+            message = f"{kwargs}$kwargs${message}"
 
         level_func(message, stacklevel=3, extra=extra)
 
