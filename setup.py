@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='dm-logger',
-    version='0.0.0',
+    version='0.6.7',
     author='dimka4621',
     author_email='mismartconfig@gmail.com',
     description='This is my custom logger',

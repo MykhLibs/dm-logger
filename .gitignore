@@ -3,3 +3,6 @@
 **/venv
 **/logs
 **/*.log*
+*.egg-info/
+.logs/
+main.py

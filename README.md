@@ -61,19 +61,40 @@ Default settings:
 
 ### Logging Level Configuration
 
-You can set the logging level either globally for all loggers or individually per logger instance:
+You can set the logging level globally or per logger instance. You can also independently configure console (`std_level`) and file (`file_level` or `write_config.level`) logging levels:
 
 ```python
-from dm_logger import DMLogger
+from dm_logger import DMLogger, WriteConfig
 
-# Set global logging level for all logger instances
-DMLogger.logging_level = "INFO"  # Default is "DEBUG"
+# Set global configurations for all logger instances
+DMLogger.logging_level = "DEBUG"         # Default fallback level
+DMLogger.std_logging_level = "INFO"      # Global console level (default: None -> logging_level)
+DMLogger.write_config = WriteConfig(     # Global file config for all loggers
+    file_name="main.log",
+    write_mode="a",
+    max_MB=10,
+    level="DEBUG"                        # Global file level
+)
 
-# Create logger with global level
-logger1 = DMLogger("app1")  # Will use global level (INFO)
+# Create logger with independent console and file levels:
+# Console only displays INFO and above, while file captures all DEBUG logs!
+logger = DMLogger(
+    "my_app",
+    std_logs=True,
+    file_logs=True,
+    std_level="INFO",                    # Console receives INFO, WARNING, ERROR, CRITICAL
+    file_level="DEBUG"                   # Shorthand: sets write_config.level="DEBUG"
+)
 
-# Override level for specific logger
-logger2 = DMLogger("app2", level="DEBUG")  # This logger will use DEBUG level
+# You can also pass a custom WriteConfig per logger instance:
+logger2 = DMLogger(
+    "analytics",
+    file_logs=True,
+    write_config=WriteConfig(file_name="analytics.log", level="INFO")
+)
+
+# Override general level for a specific logger:
+logger3 = DMLogger("app3", level="WARNING")  # Both console and file will use WARNING
 ```
 
 ### Formatting Configuration
@@ -183,6 +204,19 @@ file_logger = DMLogger(
         write_mode="a"  # Append to file
     )
 )
+
+# Split logging: Clean console (INFO+) and full debug trace file (DEBUG+)
+service_logger = DMLogger(
+    "service",
+    std_logs=True,
+    file_logs=True,
+    std_level="INFO",     # Console only shows INFO, WARNING, ERROR, CRITICAL
+    file_level="DEBUG",   # File captures everything including DEBUG
+    write_config=WriteConfig(file_name="service.log", write_mode="a")
+)
+
+service_logger.debug("Packet trace: #1234")          # Stored in service.log, omitted from console!
+service_logger.info("Service started successfully")  # Printed to console AND stored in file!
 
 # With custom formatting
 debug_logger = DMLogger(
